@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './ProductList.css'
+import { useDispatch , useSelector } from 'react-redux';
 import CartItem from './CartItem';
 import { addItem } from './CartSlice';
 function ProductList({ onHomeClick }) {
+    const dispatch=useDispatch();
+    const cartItems = useSelector((state) => state.cart.items);
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
     const [addedToCart,setAddedToCart]=useState({});
-
     const plantsArray = [
         {
             category: "Air Purifying Plants",
@@ -256,7 +258,7 @@ function ProductList({ onHomeClick }) {
     };
 
     const handleAddToCart=(product)=>{
-        displatch(addItem(product));
+        dispatch(addItem(product));
 
         setAddedToCart((prevState)=>({
             ...prevState,
@@ -290,8 +292,10 @@ function ProductList({ onHomeClick }) {
                         <div key={index}>
                             <h1><div>{category.category}</div></h1>
                             <div className='product-list'>
-                                {category.plants.map((plant,plantIndex)=>(
-                                    <div classname="product-card" key={plantIndex}>
+                                {category.plants.map((plant,plantIndex)=>{
+                                    const isAdded = cartItems.some((item) => item.name === plant.name);
+                                    return(
+                                    <div className="product-card" key={plantIndex}>
                                     <img
                                     src={plant.image}
                                     alt={plant.name}
@@ -299,12 +303,15 @@ function ProductList({ onHomeClick }) {
                                     />
                                     <div className='product-title'>{plant.name}</div>
                                     <div className='product-description'>{plant.description}</div>
-                                    <div class-name="product-cost">{plant.cost}</div>
-                                    <button className='product-button'
-                                    onClick={()=>handleAddToCart(plant)}>ADD TO CART</button>
+                                    <div className="product-cost">{plant.cost}</div>
+
+                                    <button className={`product-button ${isAdded?'added-to-cart':''}`}
+                                    disabled={isAdded}
+                                    onClick={()=>handleAddToCart(plant)}
+                                    >{isAdded?"ADDED":"ADD TO CART"}</button>
 
                                     </div>
-                                ))}
+                                )})}
                             </div>
                         </div>
                     ))}
